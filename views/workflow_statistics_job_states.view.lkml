@@ -36,10 +36,7 @@ view: workflow_statistics_job_states {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   dimension: timeout_seconds {
     type: number

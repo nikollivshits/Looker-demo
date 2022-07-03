@@ -28,10 +28,8 @@ view: system_involved_threat_indicators {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
+
 
   measure: count {
     type: count

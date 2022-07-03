@@ -33,10 +33,12 @@ view: environment_dynamic_parameters {
     sql: ${TABLE}."OptionalValuesJson" ;;
   }
 
-  dimension: type {
-    type: number
-    sql: ${TABLE}."Type" ;;
+
+  dimension: tenant_id {
+    type: string
+    sql: ${TABLE}."TenantId" ;;
   }
+
 
   measure: count {
     type: count

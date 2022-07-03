@@ -28,6 +28,12 @@ view: case_stage_definitions {
     sql: ${TABLE}."Order" ;;
   }
 
+
+  dimension: tenant_id {
+    type: string
+    sql: ${TABLE}."TenantId" ;;
+  }
+
   measure: count {
     type: count
     drill_fields: [id, name]

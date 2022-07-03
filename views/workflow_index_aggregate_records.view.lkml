@@ -62,4 +62,6 @@ view: workflow_index_aggregate_records {
     type: count
     drill_fields: [id]
   }
+
+
 }

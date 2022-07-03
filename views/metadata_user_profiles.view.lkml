@@ -53,10 +53,6 @@ view: metadata_user_profiles {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
 
   dimension: user_name {
     type: string

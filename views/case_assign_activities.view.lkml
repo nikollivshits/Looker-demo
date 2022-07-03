@@ -33,10 +33,7 @@ view: case_assign_activities {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   dimension: user_name {
     type: string

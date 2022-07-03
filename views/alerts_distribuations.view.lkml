@@ -33,15 +33,12 @@ view: alerts_distribuations {
     sql: ${TABLE}."ModificationTimeUnixTimeInMs" ;;
   }
 
+
   dimension: tenant {
     type: string
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
 
   measure: count {
     type: count

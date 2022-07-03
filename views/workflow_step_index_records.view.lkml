@@ -103,10 +103,7 @@ view: workflow_step_index_records {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   dimension: workflow_definition_identifier {
     type: string
@@ -127,4 +124,5 @@ view: workflow_step_index_records {
     type: count
     drill_fields: [id, step_action_name, step_instance_name]
   }
+
 }

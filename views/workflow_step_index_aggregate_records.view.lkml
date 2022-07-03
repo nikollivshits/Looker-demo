@@ -58,10 +58,6 @@ view: workflow_step_index_aggregate_records {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
 
   measure: count {
     type: count

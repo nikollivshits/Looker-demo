@@ -53,10 +53,7 @@ view: system_case_slas {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   dimension: value {
     type: string

@@ -73,10 +73,6 @@ view: workflow_index_records {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
 
   dimension: workflow_definition_identifier {
     type: string

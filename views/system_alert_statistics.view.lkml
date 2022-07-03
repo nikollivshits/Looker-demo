@@ -48,10 +48,7 @@ view: system_alert_statistics {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   measure: count {
     type: count

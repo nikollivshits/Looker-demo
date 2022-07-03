@@ -11,11 +11,6 @@ view: alert_ontology_families {
     sql: ${TABLE}."CaseId" ;;
   }
 
-  dimension: tenant {
-    type: string
-    sql: ${TABLE}."Tenant" ;;
-  }
-
   dimension: tenant_id {
     type: string
     sql: ${TABLE}."TenantId" ;;

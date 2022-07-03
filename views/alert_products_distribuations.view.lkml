@@ -43,10 +43,7 @@ view: alert_products_distribuations {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
+
 
   measure: count {
     type: count

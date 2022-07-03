@@ -78,10 +78,6 @@ view: dashboard_alerts {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
 
   dimension: vendor {
     type: string

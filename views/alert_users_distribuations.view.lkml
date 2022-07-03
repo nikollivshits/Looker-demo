@@ -48,11 +48,6 @@ view: alert_users_distribuations {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
-
   dimension: user {
     type: string
     sql: ${TABLE}."User" ;;

@@ -16,11 +16,6 @@ view: case_search_filters_values {
     sql: ${TABLE}."Tenant" ;;
   }
 
-  dimension: tenant_id {
-    type: string
-    sql: ${TABLE}."TenantId" ;;
-  }
-
   dimension: type {
     type: number
     sql: ${TABLE}."Type" ;;
