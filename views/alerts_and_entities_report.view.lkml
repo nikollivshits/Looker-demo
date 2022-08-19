@@ -30,6 +30,13 @@ view: alerts_and_entities_report {
 
   }
 
+  measure: entities_count {
+    type: count_distinct
+    sql: ${entity_identifier} ;;
+    drill_fields: [entity_type, entity_identifier, incident_id]
+
+  }
+
   measure: case_count {
     type: count_distinct
     sql: ${case_id} ;;
@@ -195,6 +202,15 @@ view: alerts_and_entities_report {
   dimension: incident_id {
     type: number
     sql: CASE ${incident_flag} WHEN 1 THEN ${case_id} ELSE NULL END;;
+  }
+
+  parameter: max_rank {
+    type: number
+  }
+
+  dimension: rank_limit {
+    type: number
+    sql: {% parameter max_rank %} ;;
   }
 
   set: detail {
