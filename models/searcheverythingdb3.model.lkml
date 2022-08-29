@@ -1,5 +1,6 @@
 # connection: "sedomv6-v20"
 connection: "looker-poc2"
+# connection: "personal"
 
 # include all the views
 include: "/views/**/*.view"
