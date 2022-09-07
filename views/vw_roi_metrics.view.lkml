@@ -13,8 +13,8 @@ view: vw_roi_metrics {
   DAPR."Product",
   MS."Name" as "SocRoleName" ,
   WFI."WorkflowName" AS "PlaybookName",
-  WFSI."Id" AS ActionIdentifier,
-  WFSI."IsAutomatic" AS ActionIsAutomatic
+  WFSI."Id" AS "ActionIdentifier",
+  WFSI."IsAutomatic" AS "ActionIsAutomatic"
 FROM    public."DashboardCases" DC
 LEFT JOIN   public."DashboardAlerts" DA       ON DC."CaseId"= DA."CaseId"
 LEFT JOIN   public."DashboardAlertProducts" DAPR  ON DA."AlertIdentifier" = DAPR."AlertIdentifier" AND DA."CaseId" = DAPR."CaseId"
@@ -42,14 +42,55 @@ LEFT JOIN   public."WorkflowStepIndexRecords" WFSI  ON WFI."WorkflowInstanceId"=
   dimension_group: case_creation_time {
     type: time
     timeframes: [time, date, week, month, quarter, year]
-    sql: to_timestamp(${creation_time_unix_time_in_ms})
-    datatype: datetime
-    convert_tz: yes | no;;
+    sql: to_timestamp(${creation_time_unix_time_in_ms}/1000);;
+    datatype: timestamp
+    convert_tz: yes
+  }
+
+  dimension: status {
+    type: string
+    sql: ${TABLE}."Status" ;;
+  }
+
+  dimension: case_status {
+    type: string
+    case: {
+      when: {
+        sql: ${status}=1 ;;
+        label: "Open"
+      }
+      when: {
+        sql: ${status}=2 ;;
+        label: "Closed"
+      }
+      else: "Others"
+    }
+    alpha_sort: yes
   }
 
   dimension: alert_identifier {
     type: string
     sql: ${TABLE}."AlertIdentifier" ;;
+  }
+
+  dimension: alert_type {
+    type: string
+    sql: ${TABLE}."RuleName" ;;
+  }
+
+  dimension: product {
+    type: string
+    sql: ${TABLE}."Product" ;;
+  }
+
+  dimension: playbook_name {
+    type: string
+    sql: ${TABLE}."PlaybookName" ;;
+  }
+
+  dimension: soc_role_name {
+    type: string
+    sql: ${TABLE}."SocRoleName" ;;
   }
 
   dimension: action_identifier {
@@ -62,14 +103,25 @@ LEFT JOIN   public."WorkflowStepIndexRecords" WFSI  ON WFI."WorkflowInstanceId"=
     sql: ${TABLE}."ActionIsAutomatic" ;;
   }
 
-  measure: cases {
+  measure: cases_count {
     type: count_distinct
     sql: ${case_id};;
   }
 
-  measure: alerts {
+  measure: alerts_count {
     type: count_distinct
     sql: ${alert_identifier};;
+  }
+
+  measure: cases_with_manual_actions_count {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [vw_roi_metrics.action_is_automatic: "No"]
+    }
+
+  measure: cases_without_manual_intervention_percent {
+    type: number
+    sql: 1.0 * (${cases_count}-${cases_with_manual_actions_count})/NULLIF(${cases_count},0.00);;
   }
 
   measure: all_actions {
@@ -80,13 +132,26 @@ LEFT JOIN   public."WorkflowStepIndexRecords" WFSI  ON WFI."WorkflowInstanceId"=
   measure: automatic_actions {
     type: count_distinct
     sql: ${action_identifier};;
-    filters: [action_is_automatic: "Yes"]
+    filters: [vw_roi_metrics.action_is_automatic: "Yes"]
+    html: {{ rendered_value }} out of {{ all_actions._rendered_value }} ;;
   }
 
   measure: manual_actions {
     type: count_distinct
     sql: ${action_identifier};;
-    filters: [action_is_automatic: "No"]
+    filters: [vw_roi_metrics.action_is_automatic: "No"]
   }
+
+  measure: manual_actions_percent {
+    type: number
+    sql: 1.0*${manual_actions}/NULLIF(${all_actions},0.00);;
+
+  }
+
+  measure: automatic_actions_percent {
+    type: number
+    sql: 1.00 * ${automatic_actions}/NULLIF(${all_actions},0.00);;
+  }
+
 
 }

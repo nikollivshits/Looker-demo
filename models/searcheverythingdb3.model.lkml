@@ -1,5 +1,5 @@
-# connection: "sedomv6-v20"
-connection: "looker-poc2"
+connection: "sedomv6-v20"
+# connection: "looker-poc2"
 # connection: "personal"
 
 # include all the views
@@ -93,3 +93,7 @@ explore: workflow_step_index_aggregate_records {}
 explore: workflow_step_index_records {}
 
 explore: __efmigrations_history {}
+
+explore: vw_roi_metrics {}
+
+explore: vw_executive_dashboard {}

@@ -1,5 +1,5 @@
 view: dashboard_cases {
-  sql_table_name: public.DashboardCases ;;
+  sql_table_name: public."DashboardCases" ;;
 
   dimension: analyst {
     type: string
