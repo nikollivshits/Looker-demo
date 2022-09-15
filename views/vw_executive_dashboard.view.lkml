@@ -129,7 +129,7 @@ on a."CaseId"=sla2."CaseId"
 
   dimension: open_since {
     type: string
-    sql: CASE WHEN ${status}=1 THEN DATEDIFF('day',to_timestamp(${creation_time_unix_time_in_ms}/1000),to_timestamp((${creation_time_unix_time_in_ms}+${handling_time_in_ms})/1000) ELSE NULL END) ELSE NULL END;;
+    sql: DATE_PART('day',CASE WHEN ${status}=1 THEN CURRENT_TIMESTAMP - to_timestamp(${creation_time_unix_time_in_ms}/1000) ELSE NULL END);;
   }
 
   dimension: case_status {
@@ -223,7 +223,7 @@ on a."CaseId"=sla2."CaseId"
     type: count_distinct
     sql: ${case_id};;
     filters: [ vw_executive_dashboard.incident_flag_on_stage: "1"
-      ]
+    ]
   }
 
   measure: open_incidents_count {
