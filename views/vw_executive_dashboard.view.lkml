@@ -101,6 +101,11 @@ on a."CaseId"=sla2."CaseId"
     sql: ${TABLE}."CreationTimeUnixTimeInMs" ;;
   }
 
+  dimension: handling_time_in_ms {
+    type: string
+    sql: ${TABLE}."HandlingTimeInMs" ;;
+  }
+
   dimension_group: case_creation_time {
     type: time
     timeframes: [time, date, week, month, quarter, year]
@@ -112,6 +117,14 @@ on a."CaseId"=sla2."CaseId"
   dimension: status {
     type: string
     sql: ${TABLE}."Status" ;;
+  }
+
+  dimension_group: case_close_time {
+    type: time
+    timeframes: [time, date, week, month, quarter, year]
+    sql: CASE WHEN ${status}=2 THEN to_timestamp((${creation_time_unix_time_in_ms}+${handling_time_in_ms})/1000) ELSE NULL END;;
+    datatype: timestamp
+    convert_tz: yes
   }
 
   dimension: case_status {
