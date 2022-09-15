@@ -127,6 +127,11 @@ on a."CaseId"=sla2."CaseId"
     convert_tz: yes
   }
 
+  dimension: open_since {
+    type: string
+    sql: CASE WHEN ${status}=1 THEN DATEDIFF('day',to_timestamp(${creation_time_unix_time_in_ms}/1000),to_timestamp((${creation_time_unix_time_in_ms}+${handling_time_in_ms})/1000) ELSE NULL END) ELSE NULL END;;
+  }
+
   dimension: case_status {
     type: string
     case: {
