@@ -4,6 +4,7 @@ connection: "sedomv6-v20"
 
 # include all the views
 include: "/views/**/*.view"
+include: "executive_dashboard_custom_v1.dashboard.lookml"
 
 datagroup: searcheverythingdb3_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
