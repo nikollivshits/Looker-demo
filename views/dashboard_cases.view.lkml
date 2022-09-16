@@ -17,7 +17,8 @@ view: dashboard_cases {
   }
 
   dimension: case_id {
-    type: number
+    type: string
+    primary_key: yes
     sql: ${TABLE}."CaseId" ;;
   }
 
@@ -107,4 +108,26 @@ view: dashboard_cases {
     type: count
     drill_fields: []
   }
+
+  measure: cases_count {
+    type: count_distinct
+    sql: ${case_id};;
+  }
+
+  measure: cases_count_desc {
+    type: count_distinct
+    sql: ${case_id};;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There are <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >cases in total.</span>
+    </p>
+    ;;
+  }
+
+  measure: mean_time_to_resolve {
+    type: number
+    sql: SUM(${handling_time_in_ms});;
+  }
+
+
 }

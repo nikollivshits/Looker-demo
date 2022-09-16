@@ -214,6 +214,16 @@ on a."CaseId"=sla2."CaseId"
     sql: ${case_id};;
   }
 
+  measure: cases_count_desc {
+    type: count_distinct
+    sql: ${case_id};;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There are <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >cases in total.</span>
+    </p>
+    ;;
+  }
+
   measure: alerts_count {
     type: count_distinct
     sql: ${alert_identifier};;
@@ -240,6 +250,21 @@ on a."CaseId"=sla2."CaseId"
     filters: [ vw_executive_dashboard.incident_flag_on_stage: "1",
       vw_executive_dashboard.case_status: "Closed"
     ]
+  }
+
+  measure: health_summary {
+    type: string
+    sql: case when ${open_incidents_count}>0 THEN 'Red'
+          when ${open_incidents_count}=0 AND ${closed_incidents_count}>0 THEN 'Yellow' ELSE 'Green' END;;
+    html:
+        {% if value == 'Red' %}
+         <p style="line-height: 1;font-size: 17px; text-align:center;color:black;" ><img src="https://proanalyst.net/wp-content/uploads/2019/09/red.png" height=30 width=30> The data health is {{rendered_value}} - There have been incidents during the reporting period and they are open.</p>
+      {% elsif value == 'Yellow' %}
+        <p style="line-height: 1;font-size: 17px; text-align:center;color:black;" ><img src="https://proanalyst.net/wp-content/uploads/2019/09/yellow.png" height=30 width=30>The data health is {{rendered_value}} - There have been incidents during the reporting period and they were closed.</p>
+      {% else %}
+        <p style="line-height: 1;font-size: 17px; text-align:center;color:black;" ><img src="https://proanalyst.net/wp-content/uploads/2019/09/green.png" height=30 width=30>The data health is {{rendered_value}} - There have been no incidents during the reporting period.</p>
+      {% endif %}
+;;
   }
 
   measure: case_met_sla_count {
