@@ -86,9 +86,19 @@ on a."CaseId"=sla2."CaseId"
             ;;
   }
 
+  dimension: primary_key {
+    primary_key: yes
+    sql: CONCAT(${TABLE}."CaseId", ${TABLE}."AlertIdentifier", ${TABLE}."Stage") ;;
+  }
+
   dimension: case_id {
     type: number
     sql: ${TABLE}."CaseId" ;;
+  }
+
+  dimension: stage {
+    type: number
+    sql: ${TABLE}."Stage" ;;
   }
 
   dimension: environment {

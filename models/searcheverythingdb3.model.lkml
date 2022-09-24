@@ -1,10 +1,9 @@
-connection: "sedomv6-v20"
-# connection: "looker-poc2"
+# connection: "sedomv6-v20"
+connection: "looker-poc2"
 # connection: "personal"
 
 # include all the views
 include: "/views/**/*.view"
-include: "executive_dashboard_custom_v1.dashboard.lookml"
 
 datagroup: searcheverythingdb3_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -104,6 +103,25 @@ explore: vw_executive_dashboard {
     sql_on: ${vw_executive_dashboard.case_id} = ${dashboard_cases.case_id};;
     relationship: many_to_one
   }
+}
 
+explore: vw_case_assign_activities {}
 
+explore: vw_dashboard_cases {
+  symmetric_aggregates: yes
+  join: vw_case_assign_activities {
+    type:  left_outer
+    sql_on: ${vw_dashboard_cases.case_id} = ${vw_case_assign_activities.case_id};;
+    relationship: one_to_many
+  }
+  join: vw_stage_transitions {
+    type:  left_outer
+    sql_on: ${vw_dashboard_cases.case_id} = ${vw_stage_transitions.case_id};;
+    relationship: one_to_many
+  }
+  join: vw_dashboard_alerts {
+    type:  left_outer
+    sql_on: ${vw_dashboard_cases.case_id} = ${vw_dashboard_alerts.case_id};;
+    relationship: one_to_many
+  }
 }

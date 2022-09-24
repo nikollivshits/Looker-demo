@@ -1,5 +1,5 @@
 view: dashboard_stage_transitions {
-  sql_table_name: public.DashboardStageTransitions ;;
+  sql_table_name: public."DashboardStageTransitions" ;;
   drill_fields: [id]
 
   dimension: id {
