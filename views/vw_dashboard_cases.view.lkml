@@ -169,7 +169,7 @@ view: vw_dashboard_cases {
       }
       when: {
         sql: ${case_closed_reason_int}=1 ;;
-        label: "Non Malicious"
+        label: "Not Malicious"
       }
       else: "Maintenance"
     }
@@ -283,6 +283,12 @@ view: vw_dashboard_cases {
     value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
   }
 
+  measure: average_handling_time {
+    type: average
+    sql: (${handling_time_in_ms})/(1000.0*60*60*24);;
+    filters: [ vw_dashboard_cases.case_status_str: "Closed"]
+    value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
+  }
   measure: cases_count {
     type: count_distinct
     sql: ${case_id};;
@@ -298,6 +304,20 @@ view: vw_dashboard_cases {
     type: count_distinct
     sql: ${case_id};;
     filters: [ vw_dashboard_cases.case_status_str: "Closed"]
+  }
+
+  measure: false_positive_cases_count {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [ vw_dashboard_cases.case_status_str: "Closed",
+      vw_dashboard_cases.case_closed_reason_str: "Not Malicious"
+      ]
+  }
+
+  measure: false_positive_cases_percentage {
+    type: number
+    sql: ((${vw_dashboard_cases.false_positive_cases_count}*1.0)/${vw_dashboard_cases.closed_cases_count});;
+    value_format: "0.00%"
   }
 
   measure: incidents_count_based_on_flag {
@@ -336,6 +356,15 @@ view: vw_dashboard_cases {
         <p style="line-height: 1;font-size: 17px; text-align:center;color:black;" ><img src="https://proanalyst.net/wp-content/uploads/2019/09/green.png" height=30 width=30>The data health is {{rendered_value}} - There have been no incidents during the reporting period.</p>
       {% endif %}
 ;;
+  }
+
+  parameter: max_rows {
+    type: number
+  }
+
+  dimension: max_rows_limit {
+    type:  number
+    sql: {% parameter max_rows %} ;;
   }
 
 }

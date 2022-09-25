@@ -2,17 +2,19 @@
 view: vw_dashboard_alerts {
   derived_table: {
     sql: SELECT
-          "CaseId",
-          "AlertIdentifier",
-          "RuleName",
-          "ActionType",
-          "HasPlaybook",
-          "Vendor",
-          "Product",
-          "OriginalAlertCreationTime",
-          "OriginalAlertStartTime",
-          "OriginalAlertEndTime"
-          FROM public."DashboardAlerts"
+          DA."CaseId",
+          DA."AlertIdentifier",
+          DA."RuleName",
+          DA."ActionType",
+          DA."HasPlaybook",
+          DA."Vendor",
+          DA."Product",
+          DA."OriginalAlertCreationTime",
+          DA."OriginalAlertStartTime",
+          DA."OriginalAlertEndTime",
+          SAS."EventCount"
+          FROM public."DashboardAlerts" DA
+          LEFT JOIN public."SystemAlertStatistics" SAS ON DA."AlertIdentifier" = SAS."AlertIdentifier"
             ;;
   }
 
@@ -95,9 +97,19 @@ view: vw_dashboard_alerts {
     convert_tz: yes
   }
 
+  dimension: event_count {
+    type: string
+    sql: ${TABLE}."EventCount" ;;
+  }
+
   measure: alerts_count {
     type: count_distinct
     sql: ${alert_identifier};;
+  }
+
+  measure: events_count {
+    type: sum
+    sql: ${event_count};;
   }
 
 
