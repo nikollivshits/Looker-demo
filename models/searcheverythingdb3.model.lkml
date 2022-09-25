@@ -105,8 +105,6 @@ explore: vw_executive_dashboard {
   }
 }
 
-explore: vw_case_assign_activities {}
-
 explore: vw_dashboard_cases {
   symmetric_aggregates: yes
   join: vw_case_assign_activities {
