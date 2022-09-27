@@ -129,11 +129,17 @@ LEFT JOIN   public."WorkflowStepIndexRecords" WFSI  ON WFI."WorkflowInstanceId"=
     sql: ${action_identifier};;
   }
 
-  measure: automatic_actions {
+  measure: automatic_actions_out_of_all {
     type: count_distinct
     sql: ${action_identifier};;
     filters: [vw_roi_metrics.action_is_automatic: "Yes"]
     html: {{ rendered_value }} out of {{ all_actions._rendered_value }} ;;
+  }
+
+  measure: automatic_actions {
+    type: count_distinct
+    sql: ${action_identifier};;
+    filters: [vw_roi_metrics.action_is_automatic: "Yes"]
   }
 
   measure: manual_actions {
