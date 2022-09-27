@@ -17,8 +17,15 @@ view: vw_dashboard_cases {
           DC."Analyst" AS "LastHandledAnalyst",
           MSR1."Name" AS "LastSocRole",
           DC."Title" AS "CaseTitle",
+          CASE WHEN DC."SlaExpirationUnixTime" IS NULL THEN NULL
+               WHEN DC."ClosedCaseSlaStatusEnum" = 2 THEN 'N'
+               WHEN DC."ClosedCaseSlaStatusEnum" = 1 THEN 'Y'
+               WHEN DC."ClosedCaseSlaStatusEnum" = 0 AND current_timestamp>to_timestamp(DC."SlaExpirationUnixTime"/1000)
+                  THEN 'N' ELSE 'Y' END AS "CaseClosingSlaStatus",
+          SSLA."CaseStageSlaStatus",
       FA."UserName" AS "FirstAnalystAssigned",
       FS."RemediationTimeFromStageUnixTimeInMs" AS "RemediationTimeFromStageUnixTimeInMs",
+      FS."IncidentFlagOnStage",
       MSR2."Name" AS "FirstSocRole",
       FA."CreationTimeUnixTimeInMs" AS "FirstAnalystAssignedUnixTimeInMs"
           FROM public."DashboardCases" DC
@@ -37,7 +44,8 @@ view: vw_dashboard_cases {
       LEFT JOIN
       (
         SELECT "CaseId",
-        MAX(CASE WHEN "Stage" = 'Remediation' AND "ReverseOrder" = 1 THEN "StartTimeInMs" ELSE NULL END) AS "RemediationTimeFromStageUnixTimeInMs"
+        MAX(CASE WHEN "Stage" = 'Remediation' AND "ReverseOrder" = 1 THEN "StartTimeInMs" ELSE NULL END) AS "RemediationTimeFromStageUnixTimeInMs",
+        MAX(CASE WHEN "Stage" = 'Incident' THEN 1 ELSE 0 END) AS "IncidentFlagOnStage"
         FROM
         (
         SELECT
@@ -48,6 +56,29 @@ view: vw_dashboard_cases {
         ) a
         GROUP BY "CaseId"
       ) FS ON DC."CaseId" = FS."CaseId"
+      LEFT JOIN
+        (
+        SELECT
+            "CaseId",
+            MIN(
+              CASE WHEN
+                  (CASE
+                  -- When case is open and still in that stage, compute elapsed time using current time
+                  WHEN "CaseSlaStatus" = 0 THEN extract(epoch from now())-"CreationTimeUnixTimeInMs"/1000
+                  -- When case open use db elapsed time
+                  WHEN "CaseSlaStatus" = 1 THEN "ElapsedTimeInMs"/1000
+                  -- Use db elapsed time when case is closed and this value is not 0
+                  WHEN "CaseSlaStatus" = 2 AND "ElapsedTimeInMs" > 0 THEN "ElapsedTimeInMs"/1000
+                  -- When db elapsed time is 0, Case was closed in the stage with defined SLA
+                  -- compute using db timestamps
+                  ELSE ("ModificationTimeUnixTimeInMs"-"CreationTimeUnixTimeInMs")/1000 END)
+                   >("SlaTimeInMs"/1000)
+              THEN 'N'
+              ELSE 'Y' end) AS "CaseStageSlaStatus"
+            FROM
+            public."SystemCaseSlas"
+            GROUP BY "CaseId"
+            ) SSLA ON DC."CaseId" = SSLA."CaseId"
       LEFT JOIN public."MetadataSocRoles" MSR1 ON DC."SocRoleId" = MSR1."Id"
       LEFT JOIN public."MetadataSocRoles" MSR2 ON FA."SocRoleId" = MSR2."Id"
             ;;
@@ -176,6 +207,25 @@ view: vw_dashboard_cases {
     alpha_sort: yes
   }
 
+  dimension: case_closing_sla_status_str_flag {
+    type: string
+    sql: ${TABLE}."CaseClosingSlaStatus" ;;
+  }
+
+  dimension: case_stage_sla_status_str_flag {
+    type: string
+    sql: ${TABLE}."CaseStageSlaStatus" ;;
+  }
+
+  dimension: case_closing_stage_combined_sla_flag {
+    type: string
+    sql: CASE WHEN ${case_closing_sla_status_str_flag} IS NOT NULL AND ${case_stage_sla_status_str_flag} IS NOT NULL
+                THEN LEAST(${case_closing_sla_status_str_flag},${case_stage_sla_status_str_flag})
+            WHEN ${case_closing_sla_status_str_flag} IS NOT NULL THEN ${case_closing_sla_status_str_flag}
+            WHEN ${case_stage_sla_status_str_flag} IS NOT NULL THEN ${case_stage_sla_status_str_flag}
+            ELSE 'Y' END;;
+  }
+
   dimension: root_cause {
     type: string
     sql: ${TABLE}."RootCause" ;;
@@ -258,6 +308,7 @@ view: vw_dashboard_cases {
     convert_tz: yes
   }
 
+
   measure: average_detection_time {
     type: average
     sql: (${first_analyst_assignment_time_unix_time_in_ms}-${creation_time_unix_time_in_ms})/(1000.0*60*60*24);;
@@ -283,15 +334,72 @@ view: vw_dashboard_cases {
     value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
   }
 
+  dimension: incident_flag_on_stage {
+    type: string
+    sql: ${TABLE}."IncidentFlagOnStage" ;;
+  }
+
   measure: average_handling_time {
     type: average
     sql: (${handling_time_in_ms})/(1000.0*60*60*24);;
     filters: [ vw_dashboard_cases.case_status_str: "Closed"]
     value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
   }
+
   measure: cases_count {
     type: count_distinct
     sql: ${case_id};;
+  }
+
+  parameter: open_days {
+    type: number
+  }
+
+  dimension: open_days_selected {
+    type:  string
+    # sql: {% parameter open_days %} ;;
+    sql: 5 ;;
+  }
+
+  dimension: open_for {
+    type: string
+    sql: DATE_PART('day',CASE WHEN ${case_status_int}=1 THEN CURRENT_TIMESTAMP - to_timestamp(${creation_time_unix_time_in_ms}/1000) ELSE NULL END);;
+  }
+
+  measure: cases_count_open_for {
+    type: count_distinct
+    sql: CASE WHEN ${open_for} >= ${open_days_selected} THEN ${case_id} ELSE NULL END;;
+##
+    # html:
+    # <span style="line-height: 1;font-size: 80px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    # <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >{% open_days_selected._value  %}</span>
+    # </p>;;
+  }
+
+  measure: cases_with_sla_flag_count {
+    type: count_distinct
+    sql: CASE WHEN ${case_closing_stage_combined_sla_flag} IS NOT NULL THEN ${case_id} ELSE NULL END;;
+  }
+
+  measure: cases_that_met_sla_count {
+    type: count_distinct
+    sql: CASE WHEN ${case_closing_stage_combined_sla_flag} = 'Y' THEN ${case_id} ELSE NULL END;;
+  }
+
+  measure: percent_cases_that_met_sla {
+    type: number
+    sql: CASE WHEN ${cases_with_sla_flag_count} != 0 THEN (${cases_that_met_sla_count}*1.0) / ${cases_with_sla_flag_count} ELSE NULL END;;
+    value_format: "0.00%"
+  }
+
+  measure: cases_count_desc {
+    type: count_distinct
+    sql: ${case_id};;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There are <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >cases in total.</span>
+    </p>
+    ;;
   }
 
   measure: open_cases_count {
@@ -339,6 +447,29 @@ view: vw_dashboard_cases {
     type: count_distinct
     sql: ${case_id};;
     filters: [ vw_dashboard_cases.is_incident: "1",
+      vw_dashboard_cases.case_status_str: "Closed"
+    ]
+  }
+
+  measure: incidents_count_based_on_stage {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [ vw_dashboard_cases.incident_flag_on_stage: "1"
+    ]
+  }
+
+  measure: open_incidents_count_on_stage {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [ vw_dashboard_cases.incident_flag_on_stage: "1",
+      vw_dashboard_cases.case_status_str: "Open"
+    ]
+  }
+
+  measure: closed_incidents_count_on_stage {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [ vw_dashboard_cases.incident_flag_on_stage: "1",
       vw_dashboard_cases.case_status_str: "Closed"
     ]
   }

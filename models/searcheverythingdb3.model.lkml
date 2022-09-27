@@ -94,7 +94,7 @@ explore: workflow_step_index_records {}
 
 explore: __efmigrations_history {}
 
-explore: vw_roi_metrics {}
+# explore: vw_roi_metrics {}
 
 explore: vw_executive_dashboard {
   symmetric_aggregates: yes
