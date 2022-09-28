@@ -96,14 +96,14 @@ explore: __efmigrations_history {}
 
 # explore: vw_roi_metrics {}
 
-explore: vw_executive_dashboard {
-  symmetric_aggregates: yes
-  join: dashboard_cases {
-    type:  left_outer
-    sql_on: ${vw_executive_dashboard.case_id} = ${dashboard_cases.case_id};;
-    relationship: many_to_one
-  }
-}
+# explore: vw_executive_dashboard {
+#   symmetric_aggregates: yes
+#   join: dashboard_cases {
+#     type:  left_outer
+#     sql_on: ${vw_executive_dashboard.case_id} = ${dashboard_cases.case_id};;
+#     relationship: many_to_one
+#   }
+# }
 
 explore: vw_dashboard_cases {
   symmetric_aggregates: yes
