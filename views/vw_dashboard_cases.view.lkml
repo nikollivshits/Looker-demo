@@ -341,7 +341,7 @@ view: vw_dashboard_cases {
 
   measure: average_handling_time {
     type: average
-    sql: (${handling_time_in_ms})/(1000.0*60*60*24);;
+    sql: ((${handling_time_in_ms})/(1000.0*60*60*24));;
     filters: [ vw_dashboard_cases.case_status_str: "Closed"]
     value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
   }
