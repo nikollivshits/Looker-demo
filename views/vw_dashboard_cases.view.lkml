@@ -424,7 +424,12 @@ view: vw_dashboard_cases {
 
   measure: false_positive_cases_percentage {
     type: number
-    sql: ((${vw_dashboard_cases.false_positive_cases_count}*1.0)/${vw_dashboard_cases.closed_cases_count});;
+
+    sql:  CASE
+            WHEN ${vw_dashboard_cases.closed_cases_count} != 0
+              THEN ((${vw_dashboard_cases.false_positive_cases_count}*1.0)/${vw_dashboard_cases.closed_cases_count})
+            ELSE 0
+          END;;
     value_format: "0.00%"
   }
 
