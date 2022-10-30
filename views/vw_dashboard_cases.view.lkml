@@ -207,6 +207,21 @@ view: vw_dashboard_cases {
     alpha_sort: yes
   }
 
+  dimension: false_or_true_positive {
+    type: string
+    case: {
+      when: {
+        sql: ${case_closed_reason_str}='Not Malicious' AND ${case_status_str} = 'Closed' ;;
+        label: "False Positive"
+      }
+      when: {
+        sql: ${case_closed_reason_str}!='Not Malicious' AND ${case_status_str} = 'Closed' ;;
+        label: "True Positive"
+      }
+    }
+    alpha_sort: yes
+  }
+
   dimension: case_closing_sla_status_str_flag {
     type: string
     sql: ${TABLE}."CaseClosingSlaStatus" ;;

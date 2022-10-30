@@ -213,6 +213,12 @@ view: alerts_and_entities_report {
     sql: {% parameter max_rank %} ;;
   }
 
+  measure: handling_time {
+    type: average
+    sql: (${handling_time_in_ms})/(1000.0*60*60*24);;
+    value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
+  }
+
   set: detail {
     fields: [
       case_id,
