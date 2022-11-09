@@ -62,6 +62,10 @@ view: vw_stage_transitions {
     value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
   }
 
-
-
+  measure: stage_duration {
+    type: number
+    sql:  SUM(CASE WHEN ${stage_duration_in_ms} IS NOT NULL THEN ${stage_duration_in_ms} ELSE 0 END)
+          ;;
+    value_format: "d\"days\" h\"h\" m\"m\" s\"s\""
+  }
 }

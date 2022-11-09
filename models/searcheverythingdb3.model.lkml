@@ -127,4 +127,9 @@ explore: vw_dashboard_cases {
     sql_on: ${vw_dashboard_alerts.alert_identifier} = ${vw_playbooks_and_actions.alert_identifier} AND ${vw_dashboard_alerts.case_id} = ${vw_playbooks_and_actions.case_id};;
     relationship: one_to_many
   }
+  join: vw_dashboard_case_tags {
+    type:  left_outer
+    sql_on: ${vw_dashboard_cases.case_id} = ${vw_dashboard_case_tags.case_id};;
+    relationship: one_to_many
+  }
 }

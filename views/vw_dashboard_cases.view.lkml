@@ -448,6 +448,30 @@ view: vw_dashboard_cases {
     value_format: "0.00%"
   }
 
+  measure: automatically_closed_cases_count {
+    type: count_distinct
+    sql: ${case_id};;
+    filters: [ vw_dashboard_cases.case_status_str: "Closed",
+        vw_dashboard_cases.case_closed_action_type_str : "Automatic"
+      ]
+  }
+
+  measure: manually_closed_cases_count {
+    type: number
+    sql: ${vw_dashboard_cases.closed_cases_count} - ${vw_dashboard_cases.automatically_closed_cases_count};;
+  }
+
+  measure: automatically_closed_cases_percentage {
+    type: number
+
+    sql:  CASE
+            WHEN ${vw_dashboard_cases.closed_cases_count} != 0
+              THEN ((${vw_dashboard_cases.automatically_closed_cases_count}*1.0)/${vw_dashboard_cases.closed_cases_count})
+            ELSE 0
+          END;;
+    value_format: "0.00%"
+  }
+
   measure: incidents_count_based_on_flag {
     type: count_distinct
     sql: ${case_id};;
@@ -516,6 +540,90 @@ view: vw_dashboard_cases {
   dimension: max_rows_limit {
     type:  number
     sql: {% parameter max_rows %} ;;
+  }
+
+  measure: open_case_summary {
+    type: string
+    sql: ${open_cases_count} ;;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There are currently <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >open security tickets and open support tickets.</span>
+    </p> ;;
+  }
+
+  measure: open_case_summary_total {
+    type: string
+    sql: ${open_cases_count} ;;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There are <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}}</span>
+    <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >open cases in total.</span>
+    </p> ;;
+  }
+
+  measure: cases_reviewed_by_soc_analyst {
+    type: count_distinct
+    sql: ${case_id} ;;
+    filters: [vw_case_assign_activities.analyst: "@SOC Analyst"]
+  }
+
+  measure: high_priority_cases_count {
+    type: count_distinct
+    sql: ${case_id} ;;
+    filters: [vw_dashboard_cases.case_priority_str: "High"]
+  }
+
+  measure: medium_priority_cases_count {
+    type: count_distinct
+    sql: ${case_id} ;;
+    filters: [vw_dashboard_cases.case_priority_str: "Medium"]
+  }
+
+  measure: low_priority_cases_count {
+    type: count_distinct
+    sql: ${case_id} ;;
+    filters: [vw_dashboard_cases.case_priority_str: "Low"]
+  }
+
+  measure: maximum_count_severity {
+    type: string
+    sql:  CASE WHEN ${high_priority_cases_count} > ${low_priority_cases_count} and ${high_priority_cases_count} > ${medium_priority_cases_count} THEN 'High'
+              WHEN ${low_priority_cases_count} > ${high_priority_cases_count} and ${low_priority_cases_count} > ${medium_priority_cases_count} THEN  'Low'
+              WHEN ${medium_priority_cases_count} > ${high_priority_cases_count} and ${medium_priority_cases_count} > ${low_priority_cases_count} THEN 'Medium'
+          END ;;
+  }
+
+  measure: summary_report {
+    type: string
+    sql: date(now());;
+    html:
+    <p style="line-height: 1;font-size: 25px; text-align:center; color:#000000;" >{{rendered_value | date: "%d %b %Y"}} Summary Report for {{vw_dashboard_cases.environment}}</span>
+    </p>;;
+  }
+
+  measure: cases_with_severity_summary {
+    type: string
+    sql:  ${vw_dashboard_cases.maximum_count_severity};;
+    html:   <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >Most cases were
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}} </span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >severity, with a total of </span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_cases.high_priority_cases_count}}</span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >high severity, </span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_cases.medium_priority_cases_count}}</span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >medium severity and </span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_cases.low_priority_cases_count}}</span>
+            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >low severity cases reviewed during the reporting period.</span>
+    </p>;;
+  }
+
+  measure: escalated_cases_count {
+    type: count_distinct
+    sql: ${case_id} ;;
+    filters: [vw_dashboard_case_tags.tag: "Escalated to Customer"]
+  }
+
+  dimension: case_creation_time_from {
+    html: {{_filters['creation_time_unix_time_in_ms']}};;
+    sql: 'this does nothing' ;;
   }
 
 }
