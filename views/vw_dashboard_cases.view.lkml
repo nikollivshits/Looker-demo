@@ -596,7 +596,7 @@ view: vw_dashboard_cases {
     type: string
     sql: date(now());;
     html:
-    <p style="line-height: 1;font-size: 20px; text-align:center; color:#000000;" >{{rendered_value | date: "%d %b %Y"}} Summary Report for {{vw_dashboard_cases.environment}}</span>
+    <p style="line-height: 1;font-size: 25px; text-align:center; color:#000000;" >{{rendered_value | date: "%d %b %Y"}} Summary Report for {{vw_dashboard_cases.environment}}</span>
     </p>;;
   }
 

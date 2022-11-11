@@ -200,16 +200,31 @@ view: vw_dashboard_alerts {
   measure: alerts_with_severity_summary {
     type: string
     sql:  ${vw_dashboard_alerts.maximum_alert_count_severity};;
-    html:   <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >The majority of alerts were
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}} </span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >severity, with </span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.high_priority_alerts_count}}</span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >high severity, </span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.medium_priority_alerts_count}}</span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >medium severity and </span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.low_priority_alerts_count}}</span>
-            <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >low severity alerts triggered during the reporting period.</span>
-            <br><span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >Full breakdown of the alerts can be found in the accompanying spreadsheet.</span></br>
-    </p>;;
+    html:   <ul>
+  <li>
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >The below details the split of 10 different alerts triggered during the reporting period.</p>
+  </li>
+  <li>
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >There were
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.alerts_count}} </span>
+      alerts in total generated during the reporting period.
+    </p>
+  </li>
+  <li>
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >The majority of alerts were
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{rendered_value}} </span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >severity, with </span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.high_priority_alerts_count}}</span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >high severity, </span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.medium_priority_alerts_count}}</span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >medium severity and </span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#55a5f4;" >{{vw_dashboard_alerts.low_priority_alerts_count}}</span>
+      <span style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >low severity alerts triggered during the reporting period.</span>
+    </p>
+  </li>
+  <li>
+    <p style="line-height: 1;font-size: 25px; text-align:left; color:#000000;" >Full breakdown of the alerts can be found in the accompanying spreadsheet.</p>
+  </li>
+</ul>;;
   }
 }
