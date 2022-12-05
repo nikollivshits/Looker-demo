@@ -1,5 +1,5 @@
 # connection: "sedomv6-v20"
-connection: "looker-poc2"
+connection: "prod-looker1"
 # connection: "personal"
 
 # include all the views
